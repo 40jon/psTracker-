@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>psTracker</title>
+   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>psTracker</h1>
+            <p>Track your tasks and workflow progress.</p>
+        </div>
+
+        <form method="POST" class="task-form">
+            <input type="text" name="title" placeholder="Enter a new task..." required>
+            <button type="submit">Add Task</button>
+        </form>
+
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Total Tasks</h3>
+                <p>{{ total_tasks }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Pending</h3>
+                <p>{{ pending_tasks }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>In Progress</h3>
+                <p>{{ in_progress_tasks }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Done</h3>
+                <p>{{ done_tasks }}</p>
+            </div>
+        </div>
+
+        <div class="tasks-section">
+            <h2>Your Tasks</h2>
+
+            {% if tasks %}
+                <div class="task-list">
+                    {% for task in tasks %}
+                        <div class="task-card">
+                            <div class="task-title">{{ task["title"] }}</div>
+                            <div class="task-meta">Task ID: {{ task["id"] }}</div>
+
+                            {% if task["status"] == "Pending" %}
+                                <div class="status status-pending">Pending</div>
+                            {% elif task["status"] == "In Progress" %}
+                                <div class="status status-progress">In Progress</div>
+                            {% elif task["status"] == "Done" %}
+                                <div class="status status-done">Done</div>
+                            {% endif %}
+
+                            <div class="task-actions">
+                                <form method="POST" action="/update_status/{{ task['id'] }}/In Progress">
+                                    <button type="submit" class="btn-progress">In Progress</button>
+                                </form>
+
+                                <form method="POST" action="/update_status/{{ task['id'] }}/Done">
+                                    <button type="submit" class="btn-done">Done</button>
+                                </form>
+
+                                <a href="{{ url_for('main.edit_task', task_id=task['id']) }}" class="btn-edit">Edit</a>
+
+                                <form method="POST" action="{{ url_for('main.delete_task', task_id=task['id']) }}">
+                                    <button type="submit" class="btn-delete">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <h3>No tasks yet</h3>
+                    <p>Add your first task to start tracking your work.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
